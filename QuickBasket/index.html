@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickBasket - Bramhapuri's #1 Online Grocery & Daily Needs Store</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind Custom Configuration -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eefbf3',
+              100: '#d6f5e3',
+              200: '#b0eacb',
+              300: '#7cd8ac',
+              400: '#45bf89',
+              500: '#1fa36d',
+              600: '#087a43',
+              700: '#0a693b',
+              800: '#0c5432',
+              900: '#0b452a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- External Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-brand-600 selection:text-white pb-24 md:pb-12">
+
+  <!-- Top Announcement Strip -->
+  <div class="bg-brand-900 text-emerald-50 text-xs sm:text-sm py-2 px-4 border-b border-brand-800">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2 font-medium">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
+        <span>⚡ Superfast Delivery across <strong>Bramhapuri</strong> • Starting at just <strong>₹20</strong></span>
+      </div>
+      <div class="hidden md:flex items-center gap-5 text-xs text-emerald-200">
+        <span>🔒 100% Discreet Packaging for Pharmacy & Intimate Care</span>
+        <span>•</span>
+        <span>💵 Cash / UPI on Delivery Available</span>
+        <span>•</span>
+        <a href="https://wa.me/918552969881" target="_blank" rel="noopener" class="text-white font-semibold hover:underline flex items-center gap-1">
+          💬 WhatsApp Support: +91 85529 69881
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sticky Official Header & Search Bar -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        
+        <!-- Brand Logo & Location Pill -->
+        <div class="flex items-center justify-between gap-3">
+          <a href="#" onclick="resetAllFilters(); return false;" class="flex items-center gap-3 group">
+            <div class="relative w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 flex items-center justify-center shadow-md shadow-brand-600/20 overflow-hidden shrink-0 border border-brand-500">
+              <img 
+                src="logo.png" 
+                alt="QuickBasket Logo" 
+                class="w-full h-full object-contain p-1"
+                onerror="this.style.display='none'; document.getElementById('fallbackLogo').style.display='flex';"
+              />
+              <div id="fallbackLogo" style="display:none;" class="w-full h-full items-center justify-center text-2xl sm:text-3xl select-none">
+                🧺
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="font-display font-extrabold text-xl sm:text-2xl tracking-tight text-slate-900 group-hover:text-brand-600 transition-colors">
+                  Quick<span class="text-brand-600">Basket</span>
+                </h1>
+                <span class="bg-amber-100 text-amber-800 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full border border-amber-200">
+                  Official
+                </span>
+              </div>
+              <div class="flex items-center gap-1.5 text-xs text-slate-500 font-medium mt-0.5">
+                <span class="text-brand-600 font-semibold">📍 Bramhapuri</span>
+                <span>•</span>
+                <span class="bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded font-semibold">⚡ 20-30 mins</span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Mobile Cart Trigger Button -->
+          <button 
+            type="button" 
+            onclick="openCartDrawer()" 
+            class="md:hidden relative flex items-center gap-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white px-3.5 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-brand-600/20 transition-all"
+          >
+            <span>🛒</span>
+            <span>Basket</span>
+            <span id="mobile-header-count" class="bg-white text-brand-700 px-2 py-0.5 rounded-lg text-xs font-extrabold">0</span>
+          </button>
+        </div>
+
+        <!-- Search Input Bar -->
+        <div class="flex-1 max-w-2xl">
+          <div class="relative flex items-center">
+            <span class="absolute left-3.5 text-slate-400 text-lg pointer-events-none">🔍</span>
+            <input
+              id="productSearch"
+              type="search"
+              placeholder="Search 'Lay's', 'Kurkure', 'Dolo 650', 'Durex', 'Whisper', 'Kettle', 'Milk'..."
+              oninput="searchProducts(this.value)"
+              class="w-full pl-11 pr-24 py-2.5 sm:py-3 bg-slate-100 hover:bg-slate-100/80 focus:bg-white rounded-xl border border-slate-200 focus:border-brand-600 focus:ring-4 focus:ring-brand-500/15 text-sm sm:text-base text-slate-800 placeholder-slate-400 outline-none transition-all"
+            />
+            <button 
+              id="clearSearchBtn"
+              type="button"
+              onclick="clearSearch()"
+              class="hidden absolute right-3 text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-2.5 py-1 rounded-lg transition"
+            >
+              Clear ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- Desktop Actions: Support & Basket Button -->
+        <div class="hidden md:flex items-center gap-3">
+          <a 
+            href="https://wa.me/918552969881" 
+            target="_blank" 
+            rel="noopener"
+            class="flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-slate-200 hover:border-brand-300 hover:bg-brand-50/50 text-slate-700 text-xs font-semibold transition"
+          >
+            <span class="text-base">📞</span>
+            <div class="text-left leading-tight">
+              <div class="text-[10px] text-slate-400 uppercase font-bold">Need Help?</div>
+              <div class="text-slate-800 font-bold">85529 69881</div>
+            </div>
+          </a>
+
+          <button 
+            type="button" 
+            onclick="openCartDrawer()" 
+            class="flex items-center gap-3 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow-md shadow-brand-600/20 transition-all"
+          >
+            <span class="text-lg">🛒</span>
+            <div class="text-left leading-tight">
+              <div class="text-[11px] text-emerald-100 font-medium"><span id="cart-count">0</span> items</div>
+              <div id="header-cart-total" class="text-sm font-extrabold">₹0</div>
+            </div>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Sticky Horizontal Category Bar -->
+    <div class="border-t border-slate-100 bg-white">
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2">
+        <div id="categories" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+          <!-- Dynamically rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 pt-5">
+
+    <!-- Promotional Banners (Quick Category Jumpers) -->
+    <section id="promoBanners" class="grid grid-cols-1 md:grid-cols-3 gap-3.5 mb-6">
+      <!-- Banner 1: Multi-Brand Snacks -->
+      <div 
+        onclick="filterProducts('Snacks & Branded')"
+        class="cursor-pointer group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-red-500 p-5 text-white shadow-sm hover:shadow-md transition-all"
+      >
+        <div class="relative z-10 max-w-[75%]">
+          <span class="inline-block bg-white/25 backdrop-blur-sm text-white text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-2">
+            All Top Brands
+          </span>
+          <h2 class="font-display font-extrabold text-lg sm:text-xl leading-snug">
+            Lay's, Kurkure, Balaji & Haldiram's
+          </h2>
+          <p class="text-xs text-amber-100 mt-1">
+            Filter by your favourite snack company! Starting at ₹10
+          </p>
+          <span class="inline-flex items-center gap-1 mt-3 bg-white text-orange-600 text-xs font-extrabold px-3 py-1.5 rounded-lg group-hover:translate-x-1 transition-transform">
+            Explore Snacks →
+          </span>
+        </div>
+        <div class="absolute -right-2 -bottom-3 text-6xl sm:text-7xl opacity-90 select-none group-hover:scale-110 transition-transform">
+          🍟
+        </div>
+      </div>
+
+      <!-- Banner 2: Pharmacy, Pads & Intimate Wellness -->
+      <div 
+        onclick="filterProducts('Condoms & Intimate Care')"
+        class="cursor-pointer group relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-700 via-emerald-700 to-brand-900 p-5 text-white shadow-sm hover:shadow-md transition-all"
+      >
+        <div class="relative z-10 max-w-[75%]">
+          <span class="inline-flex items-center gap-1 bg-emerald-400/20 border border-emerald-300/30 text-emerald-100 text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-2">
+            🔒 100% Private Package
+          </span>
+          <h2 class="font-display font-extrabold text-lg sm:text-xl leading-snug">
+            Medicine, Condoms & Sanitary Pads
+          </h2>
+          <p class="text-xs text-emerald-100 mt-1">
+            Durex, Manforce, Whisper, Stayfree, Dolo 650 & First Aid
+          </p>
+          <span class="inline-flex items-center gap-1 mt-3 bg-white text-brand-800 text-xs font-extrabold px-3 py-1.5 rounded-lg group-hover:translate-x-1 transition-transform">
+            Shop Wellness →
+          </span>
+        </div>
+        <div class="absolute -right-2 -bottom-2 text-6xl sm:text-7xl opacity-90 select-none group-hover:scale-110 transition-transform">
+          🩺
+        </div>
+      </div>
+
+      <!-- Banner 3: Home Appliances & Daily Grocery -->
+      <div 
+        onclick="filterProducts('Home Appliances')"
+        class="cursor-pointer group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-blue-600 to-slate-800 p-5 text-white shadow-sm hover:shadow-md transition-all"
+      >
+        <div class="relative z-10 max-w-[75%]">
+          <span class="inline-block bg-white/20 backdrop-blur-sm text-white text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full mb-2">
+            Home & Kitchen
+          </span>
+          <h2 class="font-display font-extrabold text-lg sm:text-xl leading-snug">
+            Appliances, LED Bulbs & Daily Grocery
+          </h2>
+          <p class="text-xs text-blue-100 mt-1">
+            Electric Kettle, Iron, Heater Rod, Extension Board & Staples
+          </p>
+          <span class="inline-flex items-center gap-1 mt-3 bg-white text-indigo-700 text-xs font-extrabold px-3 py-1.5 rounded-lg group-hover:translate-x-1 transition-transform">
+            View Appliances →
+          </span>
+        </div>
+        <div class="absolute -right-2 -bottom-2 text-6xl sm:text-7xl opacity-90 select-none group-hover:scale-110 transition-transform">
+          🔌
+        </div>
+      </div>
+    </section>
+
+    <!-- Dynamic Company / Brand Filter Bar -->
+    <section id="brandFilterSection" class="bg-white rounded-2xl border border-slate-200 p-3.5 mb-5 shadow-sm">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-brand-700 bg-brand-50 px-2.5 py-1 rounded-md border border-brand-200">
+            🏷️ Filter by Company / Brand
+          </span>
+          <span id="activeCategoryTitle" class="text-sm font-bold text-slate-700">
+            Showing All Categories
+          </span>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+          <span id="productCountBadge" class="font-semibold text-slate-600">0 Products</span>
+          <span>•</span>
+          <select 
+            id="sortSelect" 
+            onchange="setSortOrder(this.value)"
+            class="bg-slate-100 border border-slate-200 rounded-lg px-2.5 py-1 font-semibold text-slate-700 outline-none focus:border-brand-600"
+          >
+            <option value="popular">Sort: Popular</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="brand">Sort by Company Name</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Brand Chips Container -->
+      <div id="brandChips" class="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
+        <!-- Dynamically populated by JS -->
+      </div>
+    </section>
+
+    <!-- Discreet Packaging Notice Banner -->
+    <div id="discreetBanner" class="hidden mb-5 bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl bg-white p-2 rounded-xl shadow-sm">🔒</span>
+        <div>
+          <h4 class="text-sm font-bold text-emerald-950">100% Privacy & Discreet Delivery Guaranteed</h4>
+          <p class="text-xs text-emerald-800">All Condoms, Sanitary Pads, Wellness & Pharmacy items are packed in sealed opaque bags with no item names written outside.</p>
+        </div>
+      </div>
+      <span class="hidden sm:inline-block shrink-0 text-xs font-extrabold bg-emerald-700 text-white px-3 py-1.5 rounded-xl">
+        Privacy Protected ✓
+      </span>
+    </div>
+
+    <!-- Product List Grid -->
+    <section>
+      <div id="productList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+        <!-- Dynamically rendered by JS -->
+      </div>
+    </section>
+
+    <!-- On-Page Cart & Official Checkout Section -->
+    <section id="cartSection" class="mt-12 bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="bg-gradient-to-r from-brand-700 to-brand-900 text-white p-5 sm:p-6 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="text-xs uppercase tracking-wider font-bold text-emerald-200">QuickBasket Express Checkout</span>
+          <h2 class="font-display text-xl sm:text-2xl font-extrabold flex items-center gap-2 mt-0.5">
+            <span>🛒 Your Shopping Basket & Delivery Details</span>
+          </h2>
+        </div>
+        <button 
+          type="button" 
+          onclick="clearCart()" 
+          id="clearCartBtn"
+          class="hidden text-xs bg-white/15 hover:bg-white/25 text-white font-semibold px-3.5 py-2 rounded-xl transition"
+        >
+          🗑️ Clear Basket
+        </button>
+      </div>
+
+      <div class="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left Column: Cart Items List -->
+        <div class="lg:col-span-7 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-3">
+              <h3 class="font-bold text-slate-800 text-base">Items in Your Basket</h3>
+              <span id="cartSectionCount" class="text-xs font-bold bg-brand-50 text-brand-700 px-2.5 py-1 rounded-full">0 Items</span>
+            </div>
+
+            <!-- Cart Items Container -->
+            <div id="cart" class="divide-y divide-slate-100 max-h-[420px] overflow-y-auto custom-scroll pr-1">
+              <!-- Populated by showCart() -->
+            </div>
+          </div>
+
+          <!-- Discreet Packaging Option & Delivery Info Box -->
+          <div class="mt-5 space-y-3">
+            <label class="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50 border border-slate-200 cursor-pointer hover:border-brand-400 transition">
+              <input 
+                type="checkbox" 
+                id="discreetPackagingCheckbox" 
+                class="mt-1 w-4 h-4 accent-brand-600 rounded cursor-pointer"
+              />
+              <div class="text-xs sm:text-sm">
+                <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                  🔒 Request Discreet / Private Packaging (Free)
+                </span>
+                <span class="text-slate-500 text-xs block mt-0.5">
+                  Recommended for Medicine, Condoms, Sanitary Pads & Personal Care items. Packed in a sealed brown/opaque cover.
+                </span>
+              </div>
+            </label>
+
+            <div class="p-3.5 rounded-2xl bg-brand-50/70 border border-brand-100 text-xs text-brand-900 flex items-center justify-between gap-2">
+              <div>
+                <strong>🚚 Bramhapuri Delivery Tariff:</strong> ₹20 base fee (up to 1 KM) + ₹5 per additional KM.
+              </div>
+              <span class="font-bold shrink-0 bg-white px-2.5 py-1 rounded-lg border border-brand-200 text-brand-700">
+                Cash / UPI on Delivery
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Customer Form & Live Bill Summary -->
+        <div class="lg:col-span-5 bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-200">
+          <h3 class="font-display font-extrabold text-slate-900 text-base sm:text-lg mb-3 flex items-center gap-2">
+            <span>📍 Delivery Details (Bramhapuri)</span>
+          </h3>
+
+          <form id="checkoutForm" onsubmit="event.preventDefault(); checkout();">
+            <div class="space-y-3.5">
+              <!-- Customer Name -->
+              <div>
+                <label for="custName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Your Full Name *
+                </label>
+                <input 
+                  type="text" 
+                  id="custName" 
+                  required
+                  placeholder="e.g., Rahul Deshmukh"
+                  class="w-full px-3.5 py-2.5 bg-white rounded-xl border border-slate-300 focus:border-brand-600 focus:ring-3 focus:ring-brand-500/15 text-sm outline-none transition"
+                />
+              </div>
+
+              <!-- Mobile Number -->
+              <div>
+                <label for="custPhone" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  10-Digit Mobile Number *
+                </label>
+                <div class="relative flex items-center">
+                  <span class="absolute left-3.5 text-slate-500 font-semibold text-sm select-none">+91</span>
+                  <input 
+                    type="tel" 
+                    id="custPhone" 
+                    maxlength="10"
+                    required
+                    placeholder="9876543210"
+                    class="w-full pl-12 pr-3.5 py-2.5 bg-white rounded-xl border border-slate-300 focus:border-brand-600 focus:ring-3 focus:ring-brand-500/15 text-sm outline-none transition"
+                  />
+                </div>
+              </div>
+
+              <!-- Complete Delivery Address -->
+              <div>
+                <label for="custAddress" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                  Complete Delivery Address & Landmark *
+                </label>
+                <textarea 
+                  id="custAddress" 
+                  rows="2"
+                  required
+                  placeholder="House/Flat No., Colony/Ward, Near Landmark, Bramhapuri"
+                  class="w-full px-3.5 py-2 bg-white rounded-xl border border-slate-300 focus:border-brand-600 focus:ring-3 focus:ring-brand-500/15 text-sm outline-none transition"
+                ></textarea>
+              </div>
+
+              <!-- Distance Selector -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label for="custDistance" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Distance from Bramhapuri Town Centre (KM) *
+                  </label>
+                  <span class="text-xs font-extrabold text-brand-700" id="distanceBadge">1 KM</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input 
+                    type="number" 
+                    id="custDistance" 
+                    min="0.5" 
+                    max="25" 
+                    step="0.5" 
+                    value="1"
+                    oninput="updateBillSummary()"
+                    class="w-24 px-3 py-2 bg-white rounded-xl border border-slate-300 focus:border-brand-600 text-sm font-bold text-center outline-none"
+                  />
+                  <div class="flex flex-wrap gap-1.5 flex-1">
+                    <button type="button" onclick="setDistance(1)" class="text-xs font-bold px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-brand-500 text-slate-700">1 km</button>
+                    <button type="button" onclick="setDistance(2)" class="text-xs font-bold px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-brand-500 text-slate-700">2 km</button>
+                    <button type="button" onclick="setDistance(3)" class="text-xs font-bold px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-brand-500 text-slate-700">3 km</button>
+                    <button type="button" onclick="setDistance(5)" class="text-xs font-bold px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-brand-500 text-slate-700">5 km</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Form Validation Feedback Message -->
+              <div id="formErrorMsg" class="hidden p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold"></div>
+
+              <!-- Live Bill Summary Card -->
+              <div class="bg-white rounded-xl p-3.5 border border-slate-200 space-y-2 pt-3">
+                <div class="flex justify-between text-xs text-slate-600">
+                  <span>Items Subtotal (<span id="billItemCount">0</span> items)</span>
+                  <span id="total" class="font-bold text-slate-800">Subtotal: ₹0</span>
+                </div>
+                <div class="flex justify-between text-xs text-slate-600">
+                  <span>Delivery Fee (<span id="billDistanceText">1 KM</span>)</span>
+                  <span id="billDeliveryFee" class="font-bold text-slate-800">₹20</span>
+                </div>
+                <div class="flex justify-between text-xs text-emerald-700 font-medium">
+                  <span>Your Total Savings on MRP</span>
+                  <span id="billSavings">- ₹0</span>
+                </div>
+                <div class="border-t border-dashed border-slate-200 pt-2 flex justify-between items-center">
+                  <div>
+                    <span class="text-sm font-extrabold text-slate-900">Grand Total</span>
+                    <span class="block text-[11px] text-slate-400">Cash / UPI on Delivery</span>
+                  </div>
+                  <span id="billGrandTotal" class="text-xl font-display font-extrabold text-brand-700">₹0</span>
+                </div>
+              </div>
+
+              <!-- Submit / WhatsApp Order Button -->
+              <button 
+                type="submit" 
+                id="checkoutSubmitBtn"
+                class="w-full py-3.5 px-5 rounded-xl bg-brand-600 hover:bg-brand-700 active:scale-[0.99] text-white font-display font-extrabold text-base shadow-lg shadow-brand-600/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <span>📲 Place Order via WhatsApp</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Store Highlights / Trust Badges -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-8">
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 flex items-center gap-3">
+        <span class="text-2xl sm:text-3xl bg-brand-50 p-2.5 rounded-xl">⚡</span>
+        <div>
+          <h4 class="font-bold text-slate-800 text-xs sm:text-sm">20-30 Min Delivery</h4>
+          <p class="text-[11px] text-slate-500">Fastest doorstep service in Bramhapuri</p>
+        </div>
+      </div>
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 flex items-center gap-3">
+        <span class="text-2xl sm:text-3xl bg-amber-50 p-2.5 rounded-xl">🏷️</span>
+        <div>
+          <h4 class="font-bold text-slate-800 text-xs sm:text-sm">100% Genuine Brands</h4>
+          <p class="text-[11px] text-slate-500">Lay's, Haldiram's, Amul, Durex, Philips</p>
+        </div>
+      </div>
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 flex items-center gap-3">
+        <span class="text-2xl sm:text-3xl bg-emerald-50 p-2.5 rounded-xl">🔒</span>
+        <div>
+          <h4 class="font-bold text-slate-800 text-xs sm:text-sm">Discreet Wellness</h4>
+          <p class="text-[11px] text-slate-500">Private delivery for pharmacy & pads</p>
+        </div>
+      </div>
+      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 flex items-center gap-3">
+        <span class="text-2xl sm:text-3xl bg-blue-50 p-2.5 rounded-xl">💵</span>
+        <div>
+          <h4 class="font-bold text-slate-800 text-xs sm:text-sm">Pay on Delivery</h4>
+          <p class="text-[11px] text-slate-500">Pay via Cash, PhonePe, GPay at doorstep</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Official Footer -->
+  <footer class="bg-slate-900 text-slate-300 mt-14 pt-10 pb-24 md:pb-10 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="text-2xl bg-brand-600 p-2 rounded-xl text-white">🧺</span>
+          <span class="font-display font-extrabold text-xl text-white">Quick<span class="text-brand-400">Basket</span></span>
+        </div>
+        <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+          Bramhapuri's trusted online supermarket for fresh vegetables, multi-brand snacks, daily groceries, medicines, intimate wellness, sanitary pads, and home appliances.
+        </p>
+      </div>
+
+      <div>
+        <h4 class="text-xs font-extrabold uppercase tracking-wider text-white mb-3">Popular Categories</h4>
+        <div class="flex flex-wrap gap-2 text-xs">
+          <button onclick="filterProducts('Snacks & Branded')" class="bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg">Snacks & Chips</button>
+          <button onclick="filterProducts('Daily Grocery')" class="bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg">Daily Grocery</button>
+          <button onclick="filterProducts('Medicine & Wellness')" class="bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg">Medicine & First Aid</button>
+          <button onclick="filterProducts('Condoms & Intimate Care')" class="bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg">Condoms & Pads</button>
+          <button onclick="filterProducts('Home Appliances')" class="bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg">Home Appliances</button>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="text-xs font-extrabold uppercase tracking-wider text-white mb-3">Customer Support</h4>
+        <p class="text-xs text-slate-400">📍 Serving Bramhapuri & Nearby Areas (Dist. Chandrapur)</p>
+        <p class="text-sm font-bold text-emerald-400 mt-1">📞 WhatsApp: +91 85529 69881</p>
+        <p class="text-[11px] text-slate-500 mt-2">Open Daily • 7:00 AM to 10:30 PM</p>
+      </div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 mt-8 pt-6 border-t border-slate-800 text-center text-xs text-slate-500">
+      © 2026 QuickBasket Bramhapuri. All rights reserved.
+    </div>
+  </footer>
+
+  <!-- Sticky Floating Bottom Cart Bar -->
+  <div 
+    id="floatingCartBar" 
+    class="hidden fixed bottom-3 left-3 right-3 z-50 max-w-2xl mx-auto"
+  >
+    <div class="bg-brand-700 hover:bg-brand-800 text-white p-3.5 sm:px-5 rounded-2xl shadow-2xl shadow-brand-900/40 border border-brand-500 flex items-center justify-between gap-3 backdrop-blur-md">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center text-xl font-bold">
+          🛒
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span id="floatingBarCount" class="text-xs font-extrabold uppercase tracking-wider text-emerald-200">0 ITEMS</span>
+            <span class="text-xs text-emerald-300">•</span>
+            <span id="floatingBarSavings" class="text-[11px] bg-amber-400/20 text-amber-200 px-1.5 py-0.5 rounded font-bold">Saved ₹0</span>
+          </div>
+          <div id="floatingBarTotal" class="text-base sm:text-lg font-display font-extrabold">₹0</div>
+        </div>
+      </div>
+
+      <button 
+        type="button" 
+        onclick="scrollToCart()"
+        class="bg-white text-brand-800 hover:bg-emerald-50 font-display font-extrabold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-1.5 active:scale-95 transition"
+      >
+        <span>Proceed to Checkout</span>
+        <span>→</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast Notification Popup -->
+  <div 
+    id="toastPopup" 
+    class="fixed top-20 right-4 z-50 hidden bg-slate-900 text-white text-xs sm:text-sm font-semibold px-4 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-2.5 transition-all"
+  >
+    <span id="toastIcon">✅</span>
+    <span id="toastMessage">Added to basket</span>
+  </div>
+
+  <!-- External Application Script -->
+  <script src="app.js"></script>
+</body>
+</html>
