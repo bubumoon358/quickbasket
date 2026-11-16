@@ -7,31 +7,33 @@
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
     body { margin: 0; background: #f4f6f8; color: #222; }
-    header { background: #16a34a; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-    header h2 { margin: 0; font-size: 20px; }
+    header { background: #087a43; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    header h2 { margin: 0; font-size: 19px; }
     .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
-    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; }
-    input, select, button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #ccc; font-size: 15px; }
-    button { background: #16a34a; color: white; border: none; font-weight: bold; cursor: pointer; }
-    button:hover { background: #15803d; }
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; }
+    input, select, button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 15px; }
+    button { background: #087a43; color: white; border: none; font-weight: bold; cursor: pointer; }
+    button:hover { background: #0a693b; }
     .btn-danger { background: #dc2626; width: auto; padding: 6px 12px; font-size: 13px; }
-    .btn-logout { background: #111; width: auto; padding: 8px 14px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
-    .item-card { border: 1px solid #e5e7eb; padding: 12px; border-radius: 8px; background: #fafafa; }
-    .item-card img { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; background: #eee; }
-    .order-card { border-left: 4px solid #16a34a; background: #f9fafb; padding: 12px; margin-bottom: 10px; border-radius: 6px; }
+    .btn-top { background: #111; color: white; text-decoration: none; width: auto; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: bold; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+    .item-card { border: 1px solid #e5e7eb; padding: 12px; border-radius: 10px; background: #fafafa; }
+    .item-card img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; background: #eee; }
+    .order-card { border-left: 4px solid #087a43; background: #f9fafb; padding: 12px; margin-bottom: 10px; border-radius: 8px; }
     .hidden { display: none; }
   </style>
 </head>
 <body>
 
 <header>
-  <h2>🛒 QuickBasket Admin Panel</h2>
-  <button id="logoutBtn" class="btn-logout hidden">Logout</button>
+  <h2>🛒 QuickBasket Admin</h2>
+  <div style="display:flex; gap:8px;">
+    <a href="index.html" class="btn-top">⬅ Back to Store</a>
+    <button type="button" id="logoutBtn" class="btn-top hidden">Logout</button>
+  </div>
 </header>
 
 <div class="container">
-  <!-- Login Section -->
   <div id="loginBox" class="card" style="max-width: 400px; margin: 50px auto;">
     <h3>Admin Login</h3>
     <input type="email" id="adminEmail" placeholder="Admin Email" required />
@@ -40,34 +42,38 @@
     <p id="loginError" style="color: red; font-size: 14px; margin-top: 8px;"></p>
   </div>
 
-  <!-- Dashboard Section -->
   <div id="dashboard" class="hidden">
-    <!-- Add Product -->
     <div class="card">
-      <h3>➕ Add New Product</h3>
-      <input type="text" id="pName" placeholder="Product Name (e.g., Aashirvaad Atta 5kg)" />
-      <input type="number" id="pPrice" placeholder="Price in ₹ (e.g., 240)" />
-      <input type="text" id="pUnit" placeholder="Unit / Weight (e.g., 5 kg, 1 L, 500 g)" />
+      <h3>➕ Add New Product (With Real Photo)</h3>
+      <input type="text" id="pName" placeholder="Product Name (e.g., Amul Butter 100g)" />
+      <input type="text" id="pBrand" placeholder="Company / Brand (e.g., Amul, Lay's, QuickBasket)" />
+      <input type="number" id="pPrice" placeholder="Selling Price in ₹ (e.g., 58)" />
+      <input type="number" id="pMrp" placeholder="MRP in ₹ (optional, e.g., 60)" />
+      <input type="text" id="pUnit" placeholder="Unit / Weight (e.g., 100 g, 1 L, 1 Pack)" />
       <select id="pCategory">
-        <option value="Groceries">Groceries & Staples</option>
-        <option value="Vegetables">Fruits & Vegetables</option>
-        <option value="Dairy">Dairy & Bakery</option>
-        <option value="Snacks">Snacks & Beverages</option>
-        <option value="Personal Care">Personal & Home Care</option>
+        <option value="Daily Grocery">Daily Grocery</option>
+        <option value="Snacks & Branded">Snacks & Branded</option>
+        <option value="Vegetables & Fruits">Veg & Fruits</option>
+        <option value="Dairy & Bread">Milk, Dairy & Eggs</option>
+        <option value="Drinks & Beverages">Cold Drinks & Tea</option>
+        <option value="Instant Food">Maggi & Instant</option>
+        <option value="Medicine & Wellness">Medicine & Wellness</option>
+        <option value="Condoms & Intimate Care">Condoms & Pads</option>
+        <option value="Home Appliances">Home Appliances</option>
+        <option value="Household & Care">Bath, Cleaning & Home</option>
       </select>
-      <input type="text" id="pImage" placeholder="Image URL (optional - khaali chhod sakte ho)" />
+      <label style="font-size:13px; color:#444; font-weight:600; display:block; margin-top:6px;">📸 Select Photo from Gallery / Computer:</label>
+      <input type="file" id="pFile" accept="image/*" />
       <button type="button" id="addProductBtn">Add Product to Store</button>
     </div>
 
-    <!-- Live Orders -->
     <div class="card">
       <h3>📦 Live Customer Orders</h3>
       <div id="ordersList">Loading orders...</div>
     </div>
 
-    <!-- Product List -->
     <div class="card">
-      <h3>📋 All Store Products</h3>
+      <h3>📋 Your Added Custom Products</h3>
       <div id="productsList" class="grid">Loading products...</div>
     </div>
   </div>
@@ -103,10 +109,7 @@
     const pass = document.getElementById("adminPass").value;
     loginError.innerText = "";
 
-    if (!email || !pass) {
-      loginError.innerText = "Email aur password dono daalein!";
-      return;
-    }
+    if (!email || !pass) return (loginError.innerText = "Email aur password dono daalein!");
 
     loginBtn.disabled = true;
     loginBtn.innerText = "Logging in...";
@@ -137,4 +140,112 @@
     }
   });
 
+  function compressImage(file) {
+    return new Promise((resolve) => {
+      if (!file) return resolve("");
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const maxW = 350;
+          const scale = maxW / img.width;
+          canvas.width = maxW;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL("image/jpeg", 0.75));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   document.getElementById("addProductBtn").addEventListener("click", async () => {
+    const name = document.getElementById("pName").value.trim();
+    const brand = document.getElementById("pBrand").value.trim() || "QuickBasket";
+    const price = Number(document.getElementById("pPrice").value);
+    const mrp = Number(document.getElementById("pMrp").value) || price;
+    const unit = document.getElementById("pUnit").value.trim();
+    const category = document.getElementById("pCategory").value;
+    const file = document.getElementById("pFile").files[0];
+
+    if (!name || !price) return alert("Product name aur price zaroori hai!");
+
+    const btn = document.getElementById("addProductBtn");
+    btn.disabled = true;
+    btn.innerText = "Adding Product...";
+
+    try {
+      const image = await compressImage(file);
+      await addDoc(collection(db, "products"), { name, brand, price, mrp, unit, category, image, createdAt: Date.now() });
+      document.getElementById("pName").value = "";
+      document.getElementById("pBrand").value = "";
+      document.getElementById("pPrice").value = "";
+      document.getElementById("pMrp").value = "";
+      document.getElementById("pUnit").value = "";
+      document.getElementById("pFile").value = "";
+      alert("✅ Product added with photo!");
+    } catch (err) {
+      alert("Error: " + err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "Add Product to Store";
+    }
+  });
+
+  function loadProducts() {
+    onSnapshot(collection(db, "products"), (snap) => {
+      const list = document.getElementById("productsList");
+      if (snap.empty) { list.innerHTML = "<p>Abhi koi custom product add nahi kiya gaya hai.</p>"; return; }
+      list.innerHTML = "";
+      snap.forEach((docSnap) => {
+        const p = docSnap.data();
+        const div = document.createElement("div");
+        div.className = "item-card";
+        div.innerHTML = `
+          <img src="${p.image || 'https://placehold.co/300x200?text=QuickBasket'}" alt="${p.name}" />
+          <h4>${p.name}</h4>
+          <p>${p.unit || ""} • <b>₹${p.price}</b></p>
+          <small>${p.brand || ''} • ${p.category}</small><br><br>
+          <button type="button" class="btn-danger" onclick="deleteProduct('${docSnap.id}')">Delete</button>
+        `;
+        list.appendChild(div);
+      });
+    });
+  }
+
+  window.deleteProduct = async (id) => {
+    if (confirm("Delete this product?")) await deleteDoc(doc(db, "products", id));
+  };
+
+  function loadOrders() {
+    const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+    onSnapshot(q, (snap) => {
+      const list = document.getElementById("ordersList");
+      if (snap.empty) { list.innerHTML = "<p>Abhi koi order nahi aaya hai.</p>"; return; }
+      list.innerHTML = "";
+      snap.forEach((docSnap) => {
+        const o = docSnap.data();
+        const itemsText = o.items.map(i => `${i.name} (x${i.qty || i.quantity || 1})`).join(", ");
+        const div = document.createElement("div");
+        div.className = "order-card";
+        div.innerHTML = `
+          <b>Customer:</b> ${o.customerName} | 📞 ${o.phone}<br>
+          <b>Address:</b> ${o.address}<br>
+          <b>Items:</b> ${itemsText}<br>
+          <b>Total:</b> ₹${o.total} | <b>Status:</b> ${o.status || "Pending"}<br><br>
+          <button type="button" style="width:auto; padding:5px 10px; font-size:13px;" onclick="markDelivered('${docSnap.id}')">Mark Delivered ✅</button>
+        `;
+        list.appendChild(div);
+      });
+    });
+  }
+
+  window.markDelivered = async (id) => {
+    await updateDoc(doc(db, "orders", id), { status: "Delivered ✅" });
+  };
+</script>
+</body>
+</html>
