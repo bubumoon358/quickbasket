@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuickBasket - Admin Panel</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+    body { margin: 0; background: #f4f6f8; color: #222; }
+    header { background: #16a34a; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+    header h2 { margin: 0; font-size: 20px; }
+    .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
+    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 20px; }
+    input, select, button { width: 100%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #ccc; font-size: 15px; }
+    button { background: #16a34a; color: white; border: none; font-weight: bold; cursor: pointer; }
+    button:hover { background: #15803d; }
+    .btn-danger { background: #dc2626; width: auto; padding: 6px 12px; font-size: 13px; }
+    .btn-logout { background: #111; width: auto; padding: 8px 14px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; }
+    .item-card { border: 1px solid #e5e7eb; padding: 12px; border-radius: 8px; background: #fafafa; }
+    .item-card img { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; background: #eee; }
+    .order-card { border-left: 4px solid #16a34a; background: #f9fafb; padding: 12px; margin-bottom: 10px; border-radius: 6px; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h2>🛒 QuickBasket Admin Panel</h2>
+  <button id="logoutBtn" class="btn-logout hidden">Logout</button>
+</header>
+
+<div class="container">
+  <!-- Login Section -->
+  <div id="loginBox" class="card" style="max-width: 400px; margin: 50px auto;">
+    <h3>Admin Login</h3>
+    <input type="email" id="adminEmail" placeholder="Admin Email" required />
+    <input type="password" id="adminPass" placeholder="Password" required />
+    <button type="button" id="loginBtn">Login to Dashboard</button>
+    <p id="loginError" style="color: red; font-size: 14px; margin-top: 8px;"></p>
+  </div>
+
+  <!-- Dashboard Section -->
+  <div id="dashboard" class="hidden">
+    <!-- Add Product -->
+    <div class="card">
+      <h3>➕ Add New Product</h3>
+      <input type="text" id="pName" placeholder="Product Name (e.g., Aashirvaad Atta 5kg)" />
+      <input type="number" id="pPrice" placeholder="Price in ₹ (e.g., 240)" />
+      <input type="text" id="pUnit" placeholder="Unit / Weight (e.g., 5 kg, 1 L, 500 g)" />
+      <select id="pCategory">
+        <option value="Groceries">Groceries & Staples</option>
+        <option value="Vegetables">Fruits & Vegetables</option>
+        <option value="Dairy">Dairy & Bakery</option>
+        <option value="Snacks">Snacks & Beverages</option>
+        <option value="Personal Care">Personal & Home Care</option>
+      </select>
+      <input type="text" id="pImage" placeholder="Image URL (optional - khaali chhod sakte ho)" />
+      <button type="button" id="addProductBtn">Add Product to Store</button>
+    </div>
+
+    <!-- Live Orders -->
+    <div class="card">
+      <h3>📦 Live Customer Orders</h3>
+      <div id="ordersList">Loading orders...</div>
+    </div>
+
+    <!-- Product List -->
+    <div class="card">
+      <h3>📋 All Store Products</h3>
+      <div id="productsList" class="grid">Loading products...</div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD4K3a8LwxI7pV2I075I4t_PrxDcGfU",
+    authDomain: "quickbasket-d2032.firebaseapp.com",
+    projectId: "quickbasket-d2032",
+    storageBucket: "quickbasket-d2032.firebasestorage.app",
+    messagingSenderId: "9960307687",
+    appId: "1:9960307687:web:7d024c34a76223b1c8669",
+    measurementId: "G-8RSX064362"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const loginBox = document.getElementById("loginBox");
+  const dashboard = document.getElementById("dashboard");
+  const logoutBtn = document.getElementById("logoutBtn");
+  const loginBtn = document.getElementById("loginBtn");
+  const loginError = document.getElementById("loginError");
+
+  loginBtn.addEventListener("click", async () => {
+    const email = document.getElementById("adminEmail").value.trim();
+    const pass = document.getElementById("adminPass").value;
+    loginError.innerText = "";
+
+    if (!email || !pass) {
+      loginError.innerText = "Email aur password dono daalein!";
+      return;
+    }
+
+    loginBtn.disabled = true;
+    loginBtn.innerText = "Logging in...";
+
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (err) {
+      loginError.innerText = "Login Failed: " + err.message;
+    } finally {
+      loginBtn.disabled = false;
+      loginBtn.innerText = "Login to Dashboard";
+    }
+  });
+
+  logoutBtn.addEventListener("click", () => signOut(auth));
+
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      loginBox.classList.add("hidden");
+      dashboard.classList.remove("hidden");
+      logoutBtn.classList.remove("hidden");
+      loadProducts();
+      loadOrders();
+    } else {
+      loginBox.classList.remove("hidden");
+      dashboard.classList.add("hidden");
+      logoutBtn.classList.add("hidden");
+    }
+  });
+
+  document.getElementById("addProductBtn").addEventListener("click", async () => {
