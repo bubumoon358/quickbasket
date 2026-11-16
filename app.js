@@ -5,6 +5,8 @@ const ORDER_ENDPOINT = "https://script.google.com/macros/s/AKfycbzrYU6o630pM2fru
 const WHATSAPP = "918552969881";
 const STARTING_FEE = 20, EXTRA_PER_KM = 5, STARTING_DISTANCE = 1;
 
+let isAgeVerified = false;
+
 const categories = [
   { id: "All", label: "All Products", icon: "🏪" },
   { id: "Snacks & Branded", label: "Snacks & Branded", icon: "🍟" },
@@ -15,6 +17,7 @@ const categories = [
   { id: "Instant Food", label: "Maggi & Instant", icon: "🍜" },
   { id: "Medicine & Wellness", label: "Medicine & Wellness", icon: "💊" },
   { id: "Condoms & Intimate Care", label: "Condoms & Pads", icon: "🔒" },
+  { id: "Paan & Smoking (18+)", label: "Paan & Smoking (18+)", icon: "🔞" },
   { id: "Home Appliances", label: "Home Appliances", icon: "🔌" },
   { id: "Household & Care", label: "Bath, Cleaning & Home", icon: "🧼" }
 ];
@@ -116,6 +119,17 @@ const defaultProducts = [
   { name: "Sofy Antibacteria Extra Long XL Pads", brand: "Sofy", unit: "15 Pads", price: 135, mrp: 150, emoji: "🌿", category: "Condoms & Intimate Care", discreet: true },
   { name: "VWash Plus Expert Intimate Hygiene", brand: "VWash", unit: "100 ml", price: 165, mrp: 180, emoji: "🧴", category: "Condoms & Intimate Care", discreet: true },
   { name: "Prega News One-Step Pregnancy Test Kit", brand: "Prega News", unit: "1 Test Kit", price: 55, mrp: 60, emoji: "🧪", category: "Condoms & Intimate Care", discreet: true },
+
+  // ==================== PAAN & SMOKING (18+ ONLY) ====================
+  { name: "Gold Flake Kings Pack (18+ Only)", brand: "ITC", unit: "Pack of 10", price: 170, mrp: 170, emoji: "🚬", category: "Paan & Smoking (18+)", discreet: true, ageRestricted: true },
+  { name: "Gold Flake Premium Lights (18+ Only)", brand: "ITC", unit: "Pack of 10", price: 170, mrp: 170, emoji: "🚬", category: "Paan & Smoking (18+)", discreet: true, ageRestricted: true },
+  { name: "Classic Milds / Balanced Taste (18+ Only)", brand: "ITC", unit: "Pack of 20", price: 340, mrp: 340, emoji: "🚬", category: "Paan & Smoking (18+)", discreet: true, ageRestricted: true },
+  { name: "Classic Ice Burst Menthol (18+ Only)", brand: "ITC", unit: "Pack of 20", price: 340, mrp: 340, emoji: "❄️", category: "Paan & Smoking (18+)", discreet: true, ageRestricted: true },
+  { name: "Marlboro Advance Compact (18+ Only)", brand: "Marlboro", unit: "Pack of 10", price: 170, mrp: 170, emoji: "🚬", category: "Paan & Smoking (18+)", discreet: true, ageRestricted: true },
+  { name: "Pocket Gas Lighter Refillable", brand: "QuickBasket", unit: "1 Piece", price: 20, mrp: 25, emoji: "🔥", category: "Paan & Smoking (18+)", discreet: true, ageRestricted: true },
+  { name: "Happident Wave Sugarfree Mint Gum", brand: "Happident", unit: "Pocket Bottle", price: 50, mrp: 55, emoji: "🌿", category: "Paan & Smoking (18+)" },
+  { name: "Rajnigandha Silver Coated Pearls", brand: "DS Group", unit: "1 Pack", price: 60, mrp: 60, emoji: "✨", category: "Paan & Smoking (18+)" },
+
   { name: "Pigeon Amaze Plus Electric Kettle", brand: "Pigeon", unit: "1.5 Litre (1500W)", price: 649, mrp: 995, emoji: "🫖", category: "Home Appliances" },
   { name: "Philips Heavyweight Dry Iron 1000W", brand: "Philips", unit: "1 Unit (1 Yr Warranty)", price: 799, mrp: 995, emoji: "♨️", category: "Home Appliances" },
   { name: "Bajaj Waterproof Immersion Heater Rod", brand: "Bajaj", unit: "1500W Copper", price: 499, mrp: 650, emoji: "⚡", category: "Home Appliances" },
@@ -145,12 +159,21 @@ let firebaseProducts = [], products = [...defaultProducts], cart = [];
 let selectedCategory = "All", selectedBrand = "All", searchTerm = "", sortOrder = "popular";
 
 const getCategory = (p) => p.category || "Daily Grocery";
+const is18Plus = (p) => p.ageRestricted || getCategory(p) === "Paan & Smoking (18+)";
+
+function verifyAgeGate() {
+  if (isAgeVerified) return true;
+  const ok = confirm("🔞 18+ AGE VERIFICATION REQUIRED:\n\nCigarettes & tobacco products are strictly for customers aged 18 years and above. Tobacco causes cancer.\n\nPress OK to confirm that you are 18+ years old (ID may be checked at delivery).");
+  if (ok) isAgeVerified = true;
+  return ok;
+}
 
 window.filterProducts = function(category) {
+  if (category === "Paan & Smoking (18+)" && !verifyAgeGate()) return;
   selectedCategory = category;
   selectedBrand = "All";
   const b = document.getElementById("discreetBanner");
-  if (b) b.classList.toggle("hidden", !(category === "Condoms & Intimate Care" || category === "Medicine & Wellness"));
+  if (b) b.classList.toggle("hidden", !(category === "Condoms & Intimate Care" || category === "Medicine & Wellness" || category === "Paan & Smoking (18+)"));
   showCategories(); showBrandFilters(); showProductCards();
 };
 
@@ -227,16 +250,18 @@ function showProductCards() {
     const cartItem = cart.find(item => item.index === i);
     const qty = cartItem ? cartItem.quantity : 0;
     const hasDiscount = p.mrp && p.mrp > p.price;
+    const adultItem = is18Plus(p);
     const visual = p.image ? `<img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover rounded-xl" />` : `<span class="text-4xl sm:text-5xl select-none">${p.emoji || '🛍️'}</span>`;
-    return `<div class="product-card bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 flex flex-col justify-between relative overflow-hidden"><div><div class="flex items-center justify-between gap-1 mb-2 min-h-[20px]">${hasDiscount ? `<span class="bg-blue-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase">Save ₹${p.mrp - p.price}</span>` : `<span></span>`}${p.discreet ? `<span class="bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold px-1.5 py-0.5 rounded-md">🔒 Discreet</span>` : ``}</div><div class="w-full h-24 sm:h-28 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden mb-2.5">${visual}</div><div class="flex items-center justify-between gap-1 mb-1"><span class="text-[10px] font-extrabold uppercase tracking-wider text-brand-700 bg-brand-50 px-2 py-0.5 rounded border border-brand-100 truncate">${p.brand || 'QuickBasket'}</span><span class="text-[10px] text-slate-400 font-semibold shrink-0">⚡ 20m</span></div><h3 class="font-bold text-slate-800 text-xs sm:text-sm leading-snug line-clamp-2 min-h-[36px]">${p.name}</h3><p class="text-[11px] font-semibold text-slate-500 mt-1">${p.unit || ''}</p></div><div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2"><div><div class="text-sm sm:text-base font-display font-extrabold text-slate-900">₹${p.price}</div>${hasDiscount ? `<div class="text-[11px] text-slate-400 line-through font-medium -mt-0.5">MRP ₹${p.mrp}</div>` : `<div class="text-[10px] text-slate-400 font-medium -mt-0.5">Best Price</div>`}</div>${qty === 0 ? `<button type="button" onclick="addToCart(${i})" class="bg-brand-50 hover:bg-brand-600 text-brand-700 hover:text-white border border-brand-600 font-extrabold text-xs px-3.5 py-2 rounded-xl transition-all cursor-pointer shrink-0">ADD +</button>` : `<div class="flex items-center bg-brand-600 text-white rounded-xl overflow-hidden shadow-sm shrink-0"><button type="button" onclick="changeQuantity(${i}, -1)" class="w-7 h-8 flex items-center justify-center font-extrabold text-sm hover:bg-brand-700 cursor-pointer">−</button><span class="px-2 text-xs font-extrabold">${qty}</span><button type="button" onclick="changeQuantity(${i}, 1)" class="w-7 h-8 flex items-center justify-center font-extrabold text-sm hover:bg-brand-700 cursor-pointer">+</button></div>`}</div></div>`;
+    return `<div class="product-card bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-3.5 flex flex-col justify-between relative overflow-hidden"><div><div class="flex items-center justify-between gap-1 mb-2 min-h-[20px]">${adultItem ? `<span class="bg-red-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase">🔞 18+ ONLY</span>` : (hasDiscount ? `<span class="bg-blue-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase">Save ₹${p.mrp - p.price}</span>` : `<span></span>`)}${p.discreet ? `<span class="bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold px-1.5 py-0.5 rounded-md">🔒 Discreet</span>` : ``}</div><div class="w-full h-24 sm:h-28 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center overflow-hidden mb-2.5">${visual}</div><div class="flex items-center justify-between gap-1 mb-1"><span class="text-[10px] font-extrabold uppercase tracking-wider text-brand-700 bg-brand-50 px-2 py-0.5 rounded border border-brand-100 truncate">${p.brand || 'QuickBasket'}</span><span class="text-[10px] text-slate-400 font-semibold shrink-0">⚡ 20m</span></div><h3 class="font-bold text-slate-800 text-xs sm:text-sm leading-snug line-clamp-2 min-h-[36px]">${p.name}</h3><p class="text-[11px] font-semibold text-slate-500 mt-1">${p.unit || ''}${adultItem ? ' • <span class="text-red-600 font-bold">ID Req.</span>' : ''}</p></div><div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2"><div><div class="text-sm sm:text-base font-display font-extrabold text-slate-900">₹${p.price}</div>${hasDiscount ? `<div class="text-[11px] text-slate-400 line-through font-medium -mt-0.5">MRP ₹${p.mrp}</div>` : `<div class="text-[10px] text-slate-400 font-medium -mt-0.5">Best Price</div>`}</div>${qty === 0 ? `<button type="button" onclick="addToCart(${i})" class="bg-brand-50 hover:bg-brand-600 text-brand-700 hover:text-white border border-brand-600 font-extrabold text-xs px-3.5 py-2 rounded-xl transition-all cursor-pointer shrink-0">ADD +</button>` : `<div class="flex items-center bg-brand-600 text-white rounded-xl overflow-hidden shadow-sm shrink-0"><button type="button" onclick="changeQuantity(${i}, -1)" class="w-7 h-8 flex items-center justify-center font-extrabold text-sm hover:bg-brand-700 cursor-pointer">−</button><span class="px-2 text-xs font-extrabold">${qty}</span><button type="button" onclick="changeQuantity(${i}, 1)" class="w-7 h-8 flex items-center justify-center font-extrabold text-sm hover:bg-brand-700 cursor-pointer">+</button></div>`}</div></div>`;
   }).join("");
 }
 
 window.addToCart = function(index) {
   const p = products[index]; if (!p) return;
+  if (is18Plus(p) && !verifyAgeGate()) return;
   const ex = cart.find(item => item.index === index);
   if (ex) ex.quantity++; else cart.push({ index, quantity: 1 });
-  if (p.discreet) { const cb = document.getElementById("discreetPackagingCheckbox"); if (cb) cb.checked = true; }
+  if (p.discreet || is18Plus(p)) { const cb = document.getElementById("discreetPackagingCheckbox"); if (cb) cb.checked = true; }
   showToast(`Added ${p.name} to basket`); showProductCards(); showCart();
 };
 
@@ -276,7 +301,7 @@ function showCart() {
   area.innerHTML = cart.length === 0 ? `<div class="py-10 text-center"><div class="text-4xl mb-2">🧺</div><p class="font-bold text-slate-700 text-sm">Your basket is currently empty</p></div>` : cart.map(item => {
     const p = products[item.index];
     const thumb = p.image ? `<img src="${p.image}" class="w-full h-full object-cover rounded-xl" />` : p.emoji;
-    return `<div class="py-3 flex items-center justify-between gap-3"><div class="flex items-center gap-3 min-w-0"><div class="w-11 h-11 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-2xl shrink-0 overflow-hidden">${thumb}</div><div class="min-w-0"><p class="font-bold text-slate-800 text-xs sm:text-sm truncate">${p.name}</p><p class="text-xs text-slate-500">${p.unit} • ₹${p.price} × ${item.quantity} = <strong class="text-slate-900">₹${p.price * item.quantity}</strong></p></div></div><div class="flex items-center bg-brand-600 text-white rounded-xl overflow-hidden shrink-0"><button type="button" onclick="changeQuantity(${item.index}, -1)" class="w-7 h-7 flex items-center justify-center font-extrabold text-sm">−</button><span class="px-2 text-xs font-extrabold">${item.quantity}</span><button type="button" onclick="changeQuantity(${item.index}, 1)" class="w-7 h-7 flex items-center justify-center font-extrabold text-sm">+</button></div></div>`;
+    return `<div class="py-3 flex items-center justify-between gap-3"><div class="flex items-center gap-3 min-w-0"><div class="w-11 h-11 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-2xl shrink-0 overflow-hidden">${thumb}</div><div class="min-w-0"><p class="font-bold text-slate-800 text-xs sm:text-sm truncate">${p.name} ${is18Plus(p) ? '<span class="text-red-600 text-[10px]">🔞 18+</span>' : ''}</p><p class="text-xs text-slate-500">${p.unit} • ₹${p.price} × ${item.quantity} = <strong class="text-slate-900">₹${p.price * item.quantity}</strong></p></div></div><div class="flex items-center bg-brand-600 text-white rounded-xl overflow-hidden shrink-0"><button type="button" onclick="changeQuantity(${item.index}, -1)" class="w-7 h-7 flex items-center justify-center font-extrabold text-sm">−</button><span class="px-2 text-xs font-extrabold">${item.quantity}</span><button type="button" onclick="changeQuantity(${item.index}, 1)" class="w-7 h-7 flex items-center justify-center font-extrabold text-sm">+</button></div></div>`;
   }).join("");
   totalArea.textContent = "Subtotal: ₹" + sub;
   window.updateBillSummary();
@@ -309,10 +334,8 @@ function showToast(msg, icon = "✅") {
   toastTimer = setTimeout(() => t.classList.add("hidden"), 2400);
 }
 
-// Render default catalog immediately
 showCategories(); showBrandFilters(); showProductCards(); showCart();
 
-// Connect Firebase for Live Custom Products & Orders
 const app = initializeApp({
   apiKey: "AIzaSyBYGCahLn9IwMu7xp1VO751WN_PndND6FU",
   authDomain: "quickbasket-d2032.firebaseapp.com",
@@ -327,11 +350,13 @@ onSnapshot(collection(db, "products"), (snap) => {
   firebaseProducts = [];
   snap.forEach((doc) => {
     const d = doc.data();
+    const cat = d.category || "Daily Grocery";
     firebaseProducts.push({
       name: d.name, brand: d.brand || "QuickBasket", unit: d.unit || "",
       price: Number(d.price), mrp: Number(d.mrp || d.price),
-      image: d.image || "", emoji: "🛍️", category: d.category || "Daily Grocery",
-      discreet: d.category === "Condoms & Intimate Care" || d.category === "Medicine & Wellness"
+      image: d.image || "", emoji: "🛍️", category: cat,
+      discreet: cat === "Condoms & Intimate Care" || cat === "Medicine & Wellness" || cat === "Paan & Smoking (18+)",
+      ageRestricted: cat === "Paan & Smoking (18+)"
     });
   });
   products = [...firebaseProducts, ...defaultProducts];
@@ -340,6 +365,9 @@ onSnapshot(collection(db, "products"), (snap) => {
 
 window.checkout = async function() {
   if (cart.length === 0) return alert("Please add products to your basket first!");
+  const has18PlusInCart = cart.some(i => is18Plus(products[i.index]));
+  if (has18PlusInCart && !verifyAgeGate()) return;
+
   const name = document.getElementById("custName").value.trim();
   const phone = document.getElementById("custPhone").value.trim();
   const address = document.getElementById("custAddress").value.trim();
@@ -352,9 +380,20 @@ window.checkout = async function() {
   const items = cart.map(i => ({ name: `${products[i.index].brand || 'QuickBasket'} - ${products[i.index].name} (${products[i.index].unit})`, price: products[i.index].price, qty: i.quantity, quantity: i.quantity }));
 
   try {
-    await addDoc(collection(db, "orders"), { customerName: name, phone, address: `${address} (${distance} KM)`, items, total, status: "Pending", createdAt: Date.now() });
+    await addDoc(collection(db, "orders"), { customerName: name, phone, address: `${address} (${distance} KM${has18PlusInCart ? ' • 🔞 18+ ID Check' : ''})`, items, total, status: "Pending", createdAt: Date.now() });
   } catch (e) {}
 
-  const msg = ["🧺 *Hello QuickBasket Bramhapuri! New Order:*", "👤 *Name:* " + name, "📞 *Phone:* " + phone, "📍 *Address:* " + address, isDiscreet ? "🔒 *Discreet Packaging*" : null, "🛒 *Items:*", ...items.map((p, idx) => `${idx + 1}. ${p.name} × ${p.quantity} = ₹${p.price * p.quantity}`), "🚚 *Delivery:* ₹" + fee, "✅ *Grand Total:* ₹" + total].filter(Boolean).join("\n");
+  const msg = [
+    "🧺 *Hello QuickBasket Bramhapuri! New Order:*",
+    "👤 *Name:* " + name,
+    "📞 *Phone:* " + phone,
+    "📍 *Address:* " + address,
+    isDiscreet ? "🔒 *Discreet / Private Packaging*" : null,
+    has18PlusInCart ? "🔞 *18+ AGE VERIFIED:* Customer confirmed 18+ age (Verify ID on delivery)" : null,
+    "🛒 *Items:*",
+    ...items.map((p, idx) => `${idx + 1}. ${p.name} × ${p.quantity} = ₹${p.price * p.quantity}`),
+    "🚚 *Delivery:* ₹" + fee,
+    "✅ *Grand Total:* ₹" + total
+  ].filter(Boolean).join("\n");
   window.location.href = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(msg);
 };
